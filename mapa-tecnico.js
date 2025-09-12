@@ -178,9 +178,44 @@ function setupEventListeners() {
     mapArea.addEventListener('mouseleave', endDrag);
     
     // Touch events for mobile
-    mapArea.addEventListener('touchstart', startDrag);
-    mapArea.addEventListener('touchmove', drag);
+    mapArea.addEventListener('touchstart', startDrag, { passive: false });
+    mapArea.addEventListener('touchmove', drag, { passive: false });
     mapArea.addEventListener('touchend', endDrag);
+    
+    // Window resize handler
+    window.addEventListener('resize', handleResize);
+    
+    // Orientation change handler
+    window.addEventListener('orientationchange', () => {
+        setTimeout(handleResize, 100);
+    });
+}
+
+function handleResize() {
+    // Adjust map height based on screen size
+    const mapArea = document.getElementById('mapArea');
+    const windowHeight = window.innerHeight;
+    const windowWidth = window.innerWidth;
+    
+    if (windowWidth <= 480) {
+        // Small mobile devices
+        mapArea.style.height = '300px';
+    } else if (windowWidth <= 768) {
+        // Medium mobile devices
+        if (window.innerHeight < window.innerWidth) {
+            // Landscape
+            mapArea.style.height = '250px';
+        } else {
+            // Portrait
+            mapArea.style.height = '400px';
+        }
+    } else {
+        // Desktop
+        mapArea.style.height = '600px';
+    }
+    
+    // Re-render map to adjust markers
+    renderMap();
 }
 
 function renderMap() {
@@ -257,12 +292,26 @@ function showClientDetails(client) {
     priorityBadge.textContent = getPriorityText(client.priority);
     priorityBadge.className = `priority-badge priority-${client.priority}`;
     
-    document.getElementById('clientModal').style.display = 'flex';
+    const modal = document.getElementById('clientModal');
+    modal.style.display = 'flex';
+    
+    // Prevent body scroll on mobile
+    document.body.style.overflow = 'hidden';
+    
+    // Add close on backdrop click
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeClientModal();
+        }
+    });
 }
 
 function closeClientModal() {
     document.getElementById('clientModal').style.display = 'none';
     selectedClient = null;
+    
+    // Restore body scroll
+    document.body.style.overflow = '';
 }
 
 function markAsVisited() {
@@ -371,7 +420,7 @@ function updateStats() {
     document.getElementById('visitedClients').textContent = visited;
 }
 
-// Map dragging functionality
+// Map dragging functionality with improved mobile support
 function startDrag(e) {
     isDragging = true;
     const clientX = e.clientX || (e.touches && e.touches[0].clientX);
@@ -379,6 +428,12 @@ function startDrag(e) {
     
     dragStart = { x: clientX - mapOffset.x, y: clientY - mapOffset.y };
     e.preventDefault();
+    
+    // Add visual feedback for mobile
+    if (e.touches) {
+        document.body.style.userSelect = 'none';
+        document.body.style.touchAction = 'none';
+    }
 }
 
 function drag(e) {
@@ -396,6 +451,10 @@ function drag(e) {
 
 function endDrag() {
     isDragging = false;
+    
+    // Restore normal touch behavior
+    document.body.style.userSelect = '';
+    document.body.style.touchAction = '';
 }
 
 // Utility functions
