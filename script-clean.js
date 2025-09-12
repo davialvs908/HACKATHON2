@@ -574,3 +574,4 @@ window.onclick = function(event) {
         closeSuccessModal();
     }
 }
+

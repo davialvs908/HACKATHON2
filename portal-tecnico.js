@@ -6,6 +6,15 @@ let userProgress = {
     certificatesEarned: 0
 };
 
+// Wait for Firebase to be available
+let firebaseReady = false;
+window.addEventListener('load', () => {
+    if (window.firebaseAuth) {
+        firebaseReady = true;
+        initializeFirebaseAuth();
+    }
+});
+
 // Sample data for courses
 const coursesData = [
     {
@@ -212,9 +221,38 @@ const certificatesData = [
 
 // Initialize portal
 document.addEventListener('DOMContentLoaded', function() {
-    checkLoginStatus();
-    loadUserData();
+    // Check if Firebase is ready, otherwise use local storage
+    if (firebaseReady) {
+        initializeFirebaseAuth();
+    } else {
+        checkLoginStatus();
+        loadUserData();
+    }
 });
+
+function initializeFirebaseAuth() {
+    if (!window.firebaseAuth) return;
+    
+    // Listen for auth state changes
+    window.firebaseAuth.onAuthStateChange((user) => {
+        if (user) {
+            // User is signed in
+            currentUser = {
+                uid: user.uid,
+                email: user.email,
+                name: user.displayName || 'Usuário'
+            };
+            
+            // Load user data from Firebase
+            loadUserDataFromFirebase();
+            showPortalContent();
+        } else {
+            // User is signed out
+            currentUser = null;
+            showLoginForm();
+        }
+    });
+}
 
 function checkLoginStatus() {
     // Check if user is logged in from localStorage
@@ -238,50 +276,132 @@ function loadUserData() {
     }
 }
 
-function login(event) {
+async function login(event) {
     event.preventDefault();
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
     
-    // Get users from localStorage
-    const users = JSON.parse(localStorage.getItem('sanityTechUsers')) || [];
-    const user = users.find(u => u.email === email && u.password === password);
-    
-    if (user) {
-        currentUser = {
-            id: user.id,
-            name: user.name,
-            email: user.email
-        };
+    if (firebaseReady && window.firebaseAuth) {
+        // Use Firebase Authentication
+        const result = await window.firebaseAuth.loginUser(email, password);
         
-        // Save current user to localStorage
-        localStorage.setItem('sanityCurrentUser', JSON.stringify(currentUser));
-        
-        // Load user progress
-        loadUserData();
-        
-        showPortalContent();
-        showNotification('Login realizado com sucesso!', 'success');
+        if (result.success) {
+            currentUser = result.user;
+            showNotification('Login realizado com sucesso!', 'success');
+        } else {
+            showNotification(result.error, 'error');
+        }
     } else {
-        showNotification('Email ou senha incorretos!', 'error');
+        // Fallback to local storage
+        const users = JSON.parse(localStorage.getItem('sanityTechUsers')) || [];
+        const user = users.find(u => u.email === email && u.password === password);
+        
+        if (user) {
+            currentUser = {
+                id: user.id,
+                name: user.name,
+                email: user.email
+            };
+            
+            localStorage.setItem('sanityCurrentUser', JSON.stringify(currentUser));
+            loadUserData();
+            showPortalContent();
+            showNotification('Login realizado com sucesso!', 'success');
+        } else {
+            showNotification('Email ou senha incorretos!', 'error');
+        }
     }
 }
 
-function logout() {
-    currentUser = null;
-    localStorage.removeItem('sanityCurrentUser');
-    showLoginForm();
-    showNotification('Logout realizado com sucesso!', 'success');
+async function logout() {
+    if (firebaseReady && window.firebaseAuth) {
+        // Use Firebase logout
+        const result = await window.firebaseAuth.logoutUser();
+        if (result.success) {
+            showNotification('Logout realizado com sucesso!', 'success');
+        }
+    } else {
+        // Fallback to local storage
+        currentUser = null;
+        localStorage.removeItem('sanityCurrentUser');
+        showLoginForm();
+        showNotification('Logout realizado com sucesso!', 'success');
+    }
 }
 
 function showLoginForm() {
     document.getElementById('loginForm').style.display = 'block';
+    document.getElementById('registerForm').style.display = 'none';
     document.getElementById('portalContent').style.display = 'none';
     document.getElementById('userInfo').style.display = 'none';
 }
 
+function showRegisterForm() {
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('registerForm').style.display = 'block';
+    document.getElementById('portalContent').style.display = 'none';
+    document.getElementById('userInfo').style.display = 'none';
+}
+
+async function register(event) {
+    event.preventDefault();
+    const name = document.getElementById('registerName').value;
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+    const confirmPassword = document.getElementById('registerConfirmPassword').value;
+    
+    // Validate passwords match
+    if (password !== confirmPassword) {
+        showNotification('As senhas não coincidem!', 'error');
+        return;
+    }
+    
+    if (firebaseReady && window.firebaseAuth) {
+        // Use Firebase Authentication
+        const result = await window.firebaseAuth.registerUser(email, password, name);
+        
+        if (result.success) {
+            currentUser = result.user;
+            showNotification('Conta criada com sucesso!', 'success');
+        } else {
+            showNotification(result.error, 'error');
+        }
+    } else {
+        // Fallback to local storage
+        const users = JSON.parse(localStorage.getItem('sanityTechUsers')) || [];
+        const existingUser = users.find(u => u.email === email);
+        
+        if (existingUser) {
+            showNotification('Este email já está em uso!', 'error');
+            return;
+        }
+        
+        const newUser = {
+            id: Date.now().toString(),
+            name: name,
+            email: email,
+            password: password
+        };
+        
+        users.push(newUser);
+        localStorage.setItem('sanityTechUsers', JSON.stringify(users));
+        
+        currentUser = {
+            id: newUser.id,
+            name: newUser.name,
+            email: newUser.email
+        };
+        
+        localStorage.setItem('sanityCurrentUser', JSON.stringify(currentUser));
+        loadUserData();
+        showPortalContent();
+        showNotification('Conta criada com sucesso!', 'success');
+    }
+}
+
 function showPortalContent() {
     document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('registerForm').style.display = 'none';
     document.getElementById('portalContent').style.display = 'block';
     document.getElementById('userInfo').style.display = 'flex';
     
@@ -295,6 +415,26 @@ function showPortalContent() {
     loadQuizzes();
     loadProgress();
     loadCertificates();
+}
+
+async function loadUserDataFromFirebase() {
+    if (!firebaseReady || !window.firebaseAuth || !currentUser) return;
+    
+    try {
+        // Load user data
+        const userData = await window.firebaseAuth.getUserData(currentUser.uid);
+        if (userData) {
+            currentUser = { ...currentUser, ...userData };
+        }
+        
+        // Load user progress
+        const progress = await window.firebaseAuth.getUserProgress(currentUser.uid);
+        if (progress) {
+            userProgress = progress;
+        }
+    } catch (error) {
+        console.error('Error loading user data from Firebase:', error);
+    }
 }
 
 function switchTab(tabName) {
@@ -687,11 +827,21 @@ Equipamentos de Ordenha
     }
 }
 
-function saveProgress() {
+async function saveProgress() {
     if (currentUser) {
-        const allProgress = JSON.parse(localStorage.getItem('sanityUserProgress')) || {};
-        allProgress[currentUser.id] = userProgress;
-        localStorage.setItem('sanityUserProgress', JSON.stringify(allProgress));
+        if (firebaseReady && window.firebaseAuth) {
+            // Save to Firebase
+            try {
+                await window.firebaseAuth.updateUserProgress(currentUser.uid, userProgress);
+            } catch (error) {
+                console.error('Error saving progress to Firebase:', error);
+            }
+        } else {
+            // Fallback to local storage
+            const allProgress = JSON.parse(localStorage.getItem('sanityUserProgress')) || {};
+            allProgress[currentUser.id] = userProgress;
+            localStorage.setItem('sanityUserProgress', JSON.stringify(allProgress));
+        }
     }
 }
 
@@ -735,6 +885,11 @@ function showNotification(message, type) {
             }
         }, 300);
     }, 3000);
+}
+
+function openMap() {
+    // Redirect to map page
+    window.location.href = 'mapa-tecnico.html';
 }
 
 // Add CSS animations

@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Clientes - DIGISANITY MILK</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Mapa Técnico Specific Styles */
+        .map-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #E55A2B 0%, #FF8C42 50%, #FFB366 100%);
+            padding: 2rem 0;
+        }
+        
+        .map-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-hover);
+            text-align: center;
+        }
+        
+        .map-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .map-logo i {
+            font-size: 3rem;
+            color: var(--primary-orange);
+        }
+        
+        .map-logo h1 {
+            color: var(--primary-orange);
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 800;
+        }
+        
+        .map-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1rem 2rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-card);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .control-group label {
+            font-weight: 600;
+            color: var(--dark-gray);
+        }
+        
+        .control-group select,
+        .control-group input {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            background: white;
+            color: var(--dark-gray);
+            font-weight: 500;
+        }
+        
+        .control-group select:focus,
+        .control-group input:focus {
+            outline: none;
+            border-color: var(--primary-orange);
+        }
+        
+        .btn-route {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-route:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-card);
+        }
+        
+        .map-wrapper {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-hover);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .map-area {
+            width: 100%;
+            height: 600px;
+            background: linear-gradient(135deg, #4CAF50 0%, #8BC34A 50%, #CDDC39 100%);
+            border-radius: var(--border-radius);
+            position: relative;
+            overflow: hidden;
+            cursor: grab;
+        }
+        
+        .map-area:active {
+            cursor: grabbing;
+        }
+        
+        .map-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+        
+        .client-marker {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            border: 3px solid white;
+            z-index: 10;
+        }
+        
+        .client-marker:hover {
+            transform: scale(1.2);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        .client-marker.priority-high {
+            background: linear-gradient(135deg, #f44336 0%, #e91e63 100%);
+            animation: pulse 2s infinite;
+        }
+        
+        .client-marker.priority-medium {
+            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+        }
+        
+        .client-marker.priority-low {
+            background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+        }
+        
+        .client-marker.visited {
+            background: linear-gradient(135deg, #9e9e9e 0%, #607d8b 100%);
+            opacity: 0.7;
+        }
+        
+        .route-line {
+            position: absolute;
+            height: 3px;
+            background: var(--primary-orange);
+            transform-origin: left center;
+            z-index: 5;
+            box-shadow: 0 2px 8px rgba(229, 90, 43, 0.5);
+        }
+        
+        .route-line::after {
+            content: '';
+            position: absolute;
+            right: -8px;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid var(--primary-orange);
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+        }
+        
+        .map-legend {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card);
+            z-index: 20;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+        
+        .map-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+            box-shadow: var(--shadow-card);
+            border-left: 4px solid var(--primary-orange);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary-orange);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: var(--text-gray);
+            font-weight: 500;
+        }
+        
+        .client-details-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .client-details-content {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--border-radius-lg);
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-hover);
+        }
+        
+        .client-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--light-gray);
+        }
+        
+        .client-header h3 {
+            color: var(--primary-orange);
+            margin: 0;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-gray);
+            transition: var(--transition);
+        }
+        
+        .close-btn:hover {
+            color: var(--primary-orange);
+        }
+        
+        .client-info {
+            margin-bottom: 1.5rem;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem 0;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: var(--dark-gray);
+        }
+        
+        .info-value {
+            color: var(--text-gray);
+        }
+        
+        .priority-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .priority-high {
+            background: var(--error-red);
+        }
+        
+        .priority-medium {
+            background: var(--warning-yellow);
+            color: var(--dark-gray);
+        }
+        
+        .priority-low {
+            background: var(--success-green);
+        }
+        
+        .client-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .btn-action {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-visit {
+            background: var(--gradient-primary);
+            color: white;
+        }
+        
+        .btn-call {
+            background: var(--success-green);
+            color: white;
+        }
+        
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-card);
+        }
+        
+        .back-to-portal {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--primary-orange);
+            border: 2px solid var(--primary-orange);
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 1000;
+        }
+        
+        .back-to-portal:hover {
+            background: var(--primary-orange);
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .map-container {
+                padding: 0.5rem;
+            }
+            
+            .map-header {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .map-logo h1 {
+                font-size: 1.8rem;
+            }
+            
+            .map-controls {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 1rem;
+            }
+            
+            .control-group {
+                justify-content: space-between;
+            }
+            
+            .map-wrapper {
+                padding: 1rem;
+            }
+            
+            .map-area {
+                height: 400px;
+            }
+            
+            .map-legend {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin-top: 1rem;
+            }
+            
+            .map-stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
+            }
+            
+            .stat-card {
+                padding: 1rem;
+            }
+            
+            .back-to-portal {
+                position: relative;
+                top: auto;
+                left: auto;
+                margin-bottom: 1rem;
+                display: inline-flex;
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .client-details-content {
+                width: 95%;
+                padding: 1.5rem;
+            }
+            
+            .client-actions {
+                flex-direction: column;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .map-area {
+                height: 300px;
+            }
+            
+            .map-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .client-marker {
+                width: 30px;
+                height: 30px;
+                font-size: 1rem;
+            }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <a href="portal-tecnico.html" class="back-to-portal">
+        <i class="fas fa-arrow-left"></i>
+        Voltar ao Portal
+    </a>
+    
+    <div class="map-container">
+        <div class="container">
+            <!-- Map Header -->
+            <div class="map-header">
+                <div class="map-logo">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <h1>Mapa de Clientes</h1>
+                </div>
+                <p>Visualize clientes próximos e planeje suas rotas de atendimento</p>
+            </div>
+            
+            <!-- Map Controls -->
+            <div class="map-controls">
+                <div class="control-group">
+                    <label for="filterPriority">Filtrar por Prioridade:</label>
+                    <select id="filterPriority">
+                        <option value="all">Todas</option>
+                        <option value="high">Alta</option>
+                        <option value="medium">Média</option>
+                        <option value="low">Baixa</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="filterStatus">Status:</label>
+                    <select id="filterStatus">
+                        <option value="all">Todos</option>
+                        <option value="pending">Pendentes</option>
+                        <option value="visited">Visitados</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="searchClient">Buscar Cliente:</label>
+                    <input type="text" id="searchClient" placeholder="Nome do cliente...">
+                </div>
+                
+                <button class="btn-route" onclick="planRoute()">
+                    <i class="fas fa-route"></i>
+                    Planejar Rota
+                </button>
+            </div>
+            
+            <!-- Map Area -->
+            <div class="map-wrapper">
+                <div class="map-area" id="mapArea">
+                    <div class="map-grid"></div>
+                    
+                    <!-- Map Legend -->
+                    <div class="map-legend">
+                        <h4 style="margin: 0 0 1rem 0; color: var(--dark-gray);">Legenda</h4>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: var(--error-red);"></div>
+                            <span>Alta Prioridade</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: var(--warning-yellow);"></div>
+                            <span>Média Prioridade</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: var(--success-green);"></div>
+                            <span>Baixa Prioridade</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #9e9e9e;"></div>
+                            <span>Visitado</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Client Markers will be added here by JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Map Stats -->
+            <div class="map-stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalClients">0</div>
+                    <div class="stat-label">Total de Clientes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="pendingClients">0</div>
+                    <div class="stat-label">Pendentes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="visitedClients">0</div>
+                    <div class="stat-label">Visitados</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="routeDistance">0 km</div>
+                    <div class="stat-label">Distância da Rota</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Client Details Modal -->
+    <div class="client-details-modal" id="clientModal">
+        <div class="client-details-content">
+            <div class="client-header">
+                <h3 id="clientName">Nome do Cliente</h3>
+                <button class="close-btn" onclick="closeClientModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="client-info">
+                <div class="info-row">
+                    <span class="info-label">Fazenda:</span>
+                    <span class="info-value" id="clientFarm">Nome da Fazenda</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Endereço:</span>
+                    <span class="info-value" id="clientAddress">Endereço completo</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Telefone:</span>
+                    <span class="info-value" id="clientPhone">(11) 99999-9999</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Equipamentos:</span>
+                    <span class="info-value" id="clientEquipment">2 ordenhadeiras</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Última Visita:</span>
+                    <span class="info-value" id="lastVisit">15/01/2024</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Prioridade:</span>
+                    <span class="info-value">
+                        <span class="priority-badge priority-high" id="clientPriority">Alta</span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Observações:</span>
+                    <span class="info-value" id="clientNotes">Necessita manutenção preventiva</span>
+                </div>
+            </div>
+            
+            <div class="client-actions">
+                <button class="btn-action btn-visit" onclick="markAsVisited()">
+                    <i class="fas fa-check"></i>
+                    Marcar como Visitado
+                </button>
+                <button class="btn-action btn-call" onclick="callClient()">
+                    <i class="fas fa-phone"></i>
+                    Ligar
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="mapa-tecnico.js"></script>
+</body>
+</html>
