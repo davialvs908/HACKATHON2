@@ -1,0 +1,874 @@
+                                                                                                                                                                                                                                                                                                                            <!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal do Técnico - DIGISANITY MILK</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Portal Técnico Specific Styles */
+        .portal-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #E55A2B 0%, #FF8C42 50%, #FFB366 100%);
+            padding: 2rem 0;
+        }
+        
+        .portal-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-hover);
+            text-align: center;
+        }
+        
+        .portal-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .portal-logo i {
+            font-size: 3rem;
+            color: var(--primary-orange);
+        }
+        
+        .portal-logo h1 {
+            color: var(--primary-orange);
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 800;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1rem 2rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-card);
+        }
+        
+        .user-details {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .user-text h3 {
+            margin: 0;
+            color: var(--dark-gray);
+            font-size: 1.2rem;
+        }
+        
+        .user-text p {
+            margin: 0;
+            color: var(--text-gray);
+            font-size: 0.9rem;
+        }
+        
+        .portal-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+        }
+        
+        .portal-tab {
+            flex: 1;
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            color: var(--text-gray);
+        }
+        
+        .portal-tab.active {
+            background: var(--gradient-primary);
+            color: white;
+        }
+        
+        .portal-tab:hover:not(.active) {
+            background: rgba(255, 140, 66, 0.1);
+        }
+        
+        .portal-content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-hover);
+            min-height: 500px;
+        }
+        
+        .content-section {
+            display: none;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+            align-items: start;
+        }
+        
+        .course-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-card);
+            transition: var(--transition);
+            border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary-orange);
+        }
+        
+        .course-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .course-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .course-info h3 {
+            margin: 0;
+            color: var(--dark-gray);
+            font-size: 1.3rem;
+        }
+        
+        .course-meta {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            color: var(--text-gray);
+        }
+        
+        .course-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .course-videos {
+            margin: 1rem 0;
+            flex-grow: 1;
+        }
+        
+        .video-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            background: var(--light-gray);
+            border-radius: var(--border-radius);
+            margin-bottom: 0.5rem;
+            min-height: 60px;
+        }
+        
+        .video-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .video-icon {
+            color: var(--primary-orange);
+            font-size: 1.2rem;
+        }
+        
+        .video-title {
+            font-weight: 500;
+            color: var(--dark-gray);
+        }
+        
+        .video-duration {
+            font-size: 0.8rem;
+            color: var(--text-gray);
+        }
+        
+        .video-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+        
+        .btn-download {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+            min-width: 80px;
+            justify-content: center;
+        }
+        
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-card);
+        }
+        
+        .btn-watch {
+            background: transparent;
+            color: var(--primary-orange);
+            border: 2px solid var(--primary-orange);
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+            min-width: 80px;
+            justify-content: center;
+        }
+        
+        .btn-watch:hover {
+            background: var(--primary-orange);
+            color: white;
+        }
+        
+        .progress-section {
+            margin-top: 2rem;
+        }
+        
+        .progress-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+            box-shadow: var(--shadow-card);
+            border-left: 4px solid var(--primary-orange);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary-orange);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: var(--text-gray);
+            font-weight: 500;
+        }
+        
+        .quiz-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+            align-items: start;
+        }
+        
+        .quiz-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-card);
+            transition: var(--transition);
+            border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .quiz-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary-orange);
+        }
+        
+        .quiz-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .quiz-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .quiz-info h3 {
+            margin: 0;
+            color: var(--dark-gray);
+            font-size: 1.3rem;
+        }
+        
+        .quiz-meta {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            color: var(--text-gray);
+        }
+        
+        .quiz-actions {
+            margin-top: auto;
+            padding-top: 1rem;
+        }
+        
+        .btn-take-quiz {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-take-quiz:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-card);
+        }
+        
+        .btn-take-quiz:disabled {
+            background: var(--light-gray);
+            color: var(--text-gray);
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .certificates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+            align-items: start;
+        }
+        
+        .certificate-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-card);
+            transition: var(--transition);
+            border: 2px solid transparent;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .certificate-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary-orange);
+        }
+        
+        .certificate-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            margin: 0 auto 1rem;
+        }
+        
+        .certificate-info h3 {
+            margin: 0 0 0.5rem;
+            color: var(--dark-gray);
+            font-size: 1.3rem;
+        }
+        
+        .certificate-info p {
+            margin: 0;
+            color: var(--text-gray);
+            font-size: 0.9rem;
+        }
+        
+        .btn-download-cert {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+        }
+        
+        .btn-download-cert:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-card);
+        }
+        
+        .btn-download-cert:disabled {
+            background: var(--light-gray);
+            color: var(--text-gray);
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .logout-btn {
+            background: transparent;
+            color: var(--error-red);
+            border: 2px solid var(--error-red);
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logout-btn:hover {
+            background: var(--error-red);
+            color: white;
+        }
+        
+        .back-to-site {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--primary-orange);
+            border: 2px solid var(--primary-orange);
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 1000;
+        }
+        
+        .back-to-site:hover {
+            background: var(--primary-orange);
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .portal-container {
+                padding: 0.5rem;
+            }
+            
+            .portal-header {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .portal-logo h1 {
+                font-size: 1.8rem;
+            }
+            
+            .user-info {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+                padding: 1rem;
+            }
+            
+            .user-details {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .portal-tabs {
+                flex-direction: column;
+                margin-bottom: 1rem;
+            }
+            
+            .portal-tab {
+                padding: 1rem;
+                font-size: 1rem;
+            }
+            
+            .portal-content {
+                padding: 1rem;
+            }
+            
+            .courses-grid,
+            .quiz-grid,
+            .certificates-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                margin-top: 1rem;
+            }
+            
+            .course-card,
+            .quiz-card,
+            .certificate-card {
+                padding: 1rem;
+            }
+            
+            .course-header,
+            .quiz-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 0.5rem;
+            }
+            
+            .video-item {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+                min-height: auto;
+                padding: 1rem;
+            }
+            
+            .video-actions {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .btn-download,
+            .btn-watch {
+                width: 100%;
+                justify-content: center;
+                min-width: auto;
+                padding: 0.75rem 1rem;
+            }
+            
+            .progress-stats {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .stat-card {
+                padding: 1rem;
+            }
+            
+            .back-to-site {
+                position: relative;
+                top: auto;
+                left: auto;
+                margin-bottom: 1rem;
+                display: inline-flex;
+                width: 100%;
+                justify-content: center;
+            }
+            
+            /* Login Form Mobile */
+            .portal-content form {
+                padding: 1rem;
+            }
+            
+            .portal-content input {
+                font-size: 16px; /* Prevents zoom on iOS */
+                padding: 1rem;
+            }
+            
+            .portal-content button {
+                width: 100%;
+                padding: 1rem;
+                font-size: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .portal-container {
+                padding: 0.25rem;
+            }
+            
+            .portal-header {
+                padding: 0.75rem;
+            }
+            
+            .portal-logo h1 {
+                font-size: 1.5rem;
+            }
+            
+            .portal-content {
+                padding: 0.75rem;
+            }
+            
+            .course-card,
+            .quiz-card,
+            .certificate-card {
+                padding: 0.75rem;
+            }
+            
+            .course-icon,
+            .quiz-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+            
+            .certificate-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+            
+            .video-item {
+                padding: 0.75rem;
+            }
+            
+            .btn-download,
+            .btn-watch,
+            .btn-take-quiz,
+            .btn-download-cert {
+                padding: 0.75rem;
+                font-size: 0.9rem;
+                min-width: auto;
+            }
+            
+            .video-item {
+                padding: 0.75rem;
+                min-height: auto;
+            }
+            
+            .video-actions {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+        
+        /* Touch Device Optimizations */
+        @media (hover: none) and (pointer: coarse) {
+            .portal-tab,
+            .btn-download,
+            .btn-watch,
+            .btn-take-quiz,
+            .btn-download-cert,
+            .logout-btn {
+                min-height: 44px;
+            }
+            
+            .back-to-site {
+                min-height: 44px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-to-site">
+        <i class="fas fa-arrow-left"></i>
+        Voltar ao Site
+    </a>
+    
+    <div class="portal-container">
+        <div class="container">
+            <!-- Portal Header -->
+            <div class="portal-header">
+                <div class="portal-logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h1>Portal do Técnico</h1>
+                </div>
+                <p>Plataforma de treinamento e capacitação para técnicos em equipamentos de ordenha DIGISANITY</p>
+            </div>
+            
+            <!-- User Info -->
+            <div class="user-info" id="userInfo" style="display: none;">
+                <div class="user-details">
+                    <div class="user-avatar" id="userAvatar">T</div>
+                    <div class="user-text">
+                        <h3 id="userName">Nome do Usuário</h3>
+                        <p id="userEmail">email@exemplo.com</p>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sair
+                </button>
+            </div>
+            
+            <!-- Login Form -->
+            <div class="portal-content" id="loginForm">
+                <div style="text-align: center; max-width: 400px; margin: 0 auto;">
+                    <div style="margin-bottom: 2rem;">
+                        <i class="fas fa-lock" style="font-size: 3rem; color: var(--primary-orange); margin-bottom: 1rem;"></i>
+                        <h2 style="color: var(--dark-gray); margin-bottom: 1rem;">Acesso ao Portal</h2>
+                        <p style="color: var(--text-gray);">Faça login para acessar os cursos e materiais</p>
+                    </div>
+                    
+                    <form onsubmit="login(event)" style="display: flex; flex-direction: column; gap: 1rem;">
+                        <div>
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--dark-gray);">Email:</label>
+                            <input type="email" id="loginEmail" required style="width: 100%; padding: 0.75rem; border: 2px solid var(--light-gray); border-radius: var(--border-radius); font-size: 1rem;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--dark-gray);">Senha:</label>
+                            <input type="password" id="loginPassword" required style="width: 100%; padding: 0.75rem; border: 2px solid var(--light-gray); border-radius: var(--border-radius); font-size: 1rem;">
+                        </div>
+                        <button type="submit" style="background: var(--gradient-primary); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: var(--border-radius); cursor: pointer; font-weight: 600; margin-top: 1rem;">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Entrar
+                        </button>
+                    </form>
+                    
+                    <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--light-gray);">
+                        <p style="color: var(--text-gray); font-size: 0.9rem; margin-bottom: 1rem;">Usuário de teste:</p>
+                        <p style="color: var(--primary-orange); font-weight: 600;">Email: tecnico@sanity.com</p>
+                        <p style="color: var(--primary-orange); font-weight: 600;">Senha: 123456</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Portal Content -->
+            <div class="portal-content" id="portalContent" style="display: none;">
+                <!-- Navigation Tabs -->
+                <div class="portal-tabs">
+                    <button class="portal-tab active" onclick="switchTab('courses')">
+                        <i class="fas fa-play-circle"></i>
+                        Cursos
+                    </button>
+                    <button class="portal-tab" onclick="switchTab('quizzes')">
+                        <i class="fas fa-question-circle"></i>
+                        Provas
+                    </button>
+                    <button class="portal-tab" onclick="switchTab('progress')">
+                        <i class="fas fa-chart-line"></i>
+                        Progresso
+                    </button>
+                    <button class="portal-tab" onclick="switchTab('certificates')">
+                        <i class="fas fa-certificate"></i>
+                        Certificados
+                    </button>
+                </div>
+                
+                <!-- Courses Section -->
+                <div id="coursesSection" class="content-section active">
+                    <h2 style="color: var(--dark-gray); margin-bottom: 1rem;">
+                        <i class="fas fa-play-circle" style="color: var(--primary-orange); margin-right: 0.5rem;"></i>
+                        Cursos Disponíveis
+                    </h2>
+                    <p style="color: var(--text-gray); margin-bottom: 2rem;">Acesse os vídeos de treinamento e baixe os materiais</p>
+                    
+                    <div class="courses-grid" id="coursesGrid">
+                        <!-- Courses will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- Quizzes Section -->
+                <div id="quizzesSection" class="content-section">
+                    <h2 style="color: var(--dark-gray); margin-bottom: 1rem;">
+                        <i class="fas fa-question-circle" style="color: var(--primary-orange); margin-right: 0.5rem;"></i>
+                        Provas e Avaliações
+                    </h2>
+                    <p style="color: var(--text-gray); margin-bottom: 2rem;">Teste seus conhecimentos com nossas provas</p>
+                    
+                    <div class="quiz-grid" id="quizGrid">
+                        <!-- Quizzes will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- Progress Section -->
+                <div id="progressSection" class="content-section">
+                    <h2 style="color: var(--dark-gray); margin-bottom: 1rem;">
+                        <i class="fas fa-chart-line" style="color: var(--primary-orange); margin-right: 0.5rem;"></i>
+                        Seu Progresso
+                    </h2>
+                    <p style="color: var(--text-gray); margin-bottom: 2rem;">Acompanhe seu desenvolvimento nos cursos</p>
+                    
+                    <div class="progress-stats" id="progressStats">
+                        <!-- Progress stats will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- Certificates Section -->
+                <div id="certificatesSection" class="content-section">
+                    <h2 style="color: var(--dark-gray); margin-bottom: 1rem;">
+                        <i class="fas fa-certificate" style="color: var(--primary-orange); margin-right: 0.5rem;"></i>
+                        Certificados
+                    </h2>
+                    <p style="color: var(--text-gray); margin-bottom: 2rem;">Baixe seus certificados de conclusão</p>
+                    
+                    <div class="certificates-grid" id="certificatesGrid">
+                        <!-- Certificates will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="portal-tecnico.js"></script>
+</body>
+</html>
