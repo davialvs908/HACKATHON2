@@ -9,6 +9,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Google Maps Configuration -->
+    <script src="google-maps-config.js"></script>
+    
+    <!-- Google Maps API -->
+    <script async defer src="" id="googleMapsScript"></script>
     <style>
         /* Mapa Técnico Specific Styles */
         .map-container {
@@ -212,6 +218,43 @@
             border-radius: var(--border-radius);
             box-shadow: var(--shadow-card);
             z-index: 20;
+        }
+        
+        .route-controls {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            z-index: 20;
+        }
+        
+        .btn-route-option {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-orange);
+            font-size: 1rem;
+            transition: var(--transition);
+            box-shadow: var(--shadow-card);
+        }
+        
+        .btn-route-option:hover {
+            background: var(--primary-orange);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .btn-route-option.active {
+            background: var(--primary-orange);
+            color: white;
         }
         
         .legend-item {
@@ -714,6 +757,66 @@
             .map-legend {
                 min-height: 44px;
             }
+            
+            .btn-route-option {
+                min-width: 44px;
+                min-height: 44px;
+            }
+        }
+        
+        /* Google Maps Mobile Optimizations */
+        @media (max-width: 768px) {
+            .gm-style-iw {
+                max-width: 280px !important;
+            }
+            
+            .gm-style-iw-d {
+                overflow: hidden !important;
+            }
+            
+            .route-controls {
+                top: 0.5rem;
+                left: 0.5rem;
+            }
+            
+            .map-legend {
+                top: 0.5rem;
+                right: 0.5rem;
+                padding: 0.75rem;
+                font-size: 0.8rem;
+            }
+            
+            .btn-route-option {
+                width: 36px;
+                height: 36px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .route-controls {
+                flex-direction: row;
+                gap: 0.25rem;
+                top: 0.25rem;
+                left: 0.25rem;
+            }
+            
+            .map-legend {
+                top: 0.25rem;
+                right: 0.25rem;
+                padding: 0.5rem;
+                font-size: 0.7rem;
+            }
+            
+            .btn-route-option {
+                width: 32px;
+                height: 32px;
+                font-size: 0.8rem;
+            }
+            
+            .gm-style-iw {
+                max-width: 250px !important;
+            }
         }
         
         /* High DPI Displays */
@@ -802,16 +905,38 @@
                     <input type="text" id="searchClient" placeholder="Nome do cliente...">
                 </div>
                 
-                <button class="btn-route" onclick="planRoute()">
-                    <i class="fas fa-route"></i>
-                    Planejar Rota
-                </button>
+                <div class="control-group">
+                    <button class="btn-route" onclick="planRoute()">
+                        <i class="fas fa-route"></i>
+                        Planejar Rota
+                    </button>
+                </div>
+                
+                <div class="control-group">
+                    <label for="routeMode">Modo de Rota:</label>
+                    <select id="routeMode">
+                        <option value="DRIVING">Carro</option>
+                        <option value="WALKING">A pé</option>
+                        <option value="BICYCLING">Bicicleta</option>
+                        <option value="TRANSIT">Transporte Público</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="optimizationType">Otimização:</label>
+                    <select id="optimizationType">
+                        <option value="distance">Menor Distância</option>
+                        <option value="time">Menor Tempo</option>
+                        <option value="priority">Por Prioridade</option>
+                    </select>
+                </div>
             </div>
             
             <!-- Map Area -->
             <div class="map-wrapper">
                 <div class="map-area" id="mapArea">
-                    <div class="map-grid"></div>
+                    <!-- Google Maps will be rendered here -->
+                    <div id="googleMap" style="width: 100%; height: 100%; border-radius: var(--border-radius);"></div>
                     
                     <!-- Map Legend -->
                     <div class="map-legend">
@@ -834,7 +959,18 @@
                         </div>
                     </div>
                     
-                    <!-- Client Markers will be added here by JavaScript -->
+                    <!-- Route Controls -->
+                    <div class="route-controls">
+                        <button class="btn-route-option" onclick="optimizeRoute()" title="Otimizar Rota">
+                            <i class="fas fa-route"></i>
+                        </button>
+                        <button class="btn-route-option" onclick="clearRoute()" title="Limpar Rota">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <button class="btn-route-option" onclick="toggleTraffic()" title="Mostrar Tráfego">
+                            <i class="fas fa-car"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
             
@@ -855,6 +991,14 @@
                 <div class="stat-card">
                     <div class="stat-number" id="routeDistance">0 km</div>
                     <div class="stat-label">Distância da Rota</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="routeTime">0 min</div>
+                    <div class="stat-label">Tempo Estimado</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="routeClients">0</div>
+                    <div class="stat-label">Clientes na Rota</div>
                 </div>
             </div>
         </div>
@@ -918,6 +1062,17 @@
     
     <script src="mapa-tecnico.js"></script>
     <script>
+        // Inicializar Google Maps API
+        document.addEventListener('DOMContentLoaded', function() {
+            if (initializeGoogleMaps()) {
+                const script = document.getElementById('googleMapsScript');
+                script.src = getGoogleMapsApiUrl();
+            } else {
+                // Fallback: mostrar mapa simples se a API não estiver configurada
+                showFallbackMap();
+            }
+        });
+        
         // Ajustar padding dinamicamente para dispositivos móveis
         function adjustPadding() {
             const container = document.getElementById('mapContainer');
@@ -926,6 +1081,19 @@
             } else {
                 container.style.paddingTop = '80px';
             }
+        }
+        
+        // Função de fallback para quando a API do Google Maps não estiver disponível
+        function showFallbackMap() {
+            const mapArea = document.getElementById('mapArea');
+            mapArea.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: linear-gradient(135deg, #4CAF50 0%, #8BC34A 50%, #CDDC39 100%); color: white; text-align: center; padding: 2rem;">
+                    <i class="fas fa-map-marked-alt" style="font-size: 4rem; margin-bottom: 1rem;"></i>
+                    <h3>Mapa Interativo</h3>
+                    <p>Configure sua chave da API do Google Maps para visualizar o mapa interativo com rotas otimizadas.</p>
+                    <p style="font-size: 0.9rem; opacity: 0.8;">Por enquanto, você pode usar os controles de filtro e visualizar as informações dos clientes.</p>
+                </div>
+            `;
         }
         
         window.addEventListener('load', adjustPadding);

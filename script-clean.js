@@ -1,8 +1,8 @@
-// Global variables
+// Variáveis globais do carrinho
 let cart = [];
 let cartTotal = 0;
 
-// Sample data for kits and videos - Foco em equipamentos de ordenha
+// Dados dos kits e vídeos - Equipamentos de ordenha
 const kitsData = [
     {
         id: 1,
@@ -158,7 +158,7 @@ const videosData = [
 let filteredKits = [...kitsData];
 let filteredVideos = [...videosData];
 
-// Initialize the page
+// Inicializar a página quando carregar
 document.addEventListener('DOMContentLoaded', function() {
     renderKits();
     renderVideos();
@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function setupEventListeners() {
-    // Navigation smooth scrolling
+    // Navegação suave entre seções
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
@@ -184,7 +184,7 @@ function setupEventListeners() {
         });
     });
 
-    // Search functionality
+    // Funcionalidade de busca
     document.getElementById('searchInput').addEventListener('input', function() {
         searchContent();
     });
@@ -251,7 +251,7 @@ function filterContent() {
     const difficultyFilter = document.getElementById('difficultyFilter').value;
     const priceFilter = document.getElementById('priceFilter').value;
 
-    // Filter kits
+    // Filtrar kits
     filteredKits = kitsData.filter(kit => {
         const categoryMatch = !categoryFilter || kit.category === categoryFilter;
         const difficultyMatch = !difficultyFilter || kit.difficulty === difficultyFilter;
@@ -259,7 +259,7 @@ function filterContent() {
         return categoryMatch && difficultyMatch && priceMatch;
     });
 
-    // Filter videos
+    // Filtrar vídeos
     filteredVideos = videosData.filter(video => {
         const categoryMatch = !categoryFilter || video.category === categoryFilter;
         const difficultyMatch = !difficultyFilter || video.difficulty === difficultyFilter;
@@ -322,7 +322,7 @@ function closeModal() {
     document.getElementById('modalVideo').src = '';
 }
 
-// FAQ functionality
+// Funcionalidade do FAQ
 function setupFAQ() {
     const faqItems = document.querySelectorAll('.faq-item');
     
@@ -332,14 +332,14 @@ function setupFAQ() {
         question.addEventListener('click', () => {
             const isActive = item.classList.contains('active');
             
-            // Close all other FAQ items
+            // Fechar outros itens do FAQ
             faqItems.forEach(otherItem => {
                 if (otherItem !== item) {
                     otherItem.classList.remove('active');
                 }
             });
             
-            // Toggle current item
+            // Alternar item atual
             if (isActive) {
                 item.classList.remove('active');
             } else {
@@ -349,7 +349,7 @@ function setupFAQ() {
     });
 }
 
-// Smooth scrolling for navigation
+// Rolagem suave para navegação
 function setupSmoothScrolling() {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
@@ -368,7 +368,7 @@ function setupSmoothScrolling() {
     });
 }
 
-// Intersection Observer for animations
+// Animações ao rolar a página
 function setupScrollAnimations() {
     const observerOptions = {
         threshold: 0.1,
@@ -384,7 +384,7 @@ function setupScrollAnimations() {
         });
     }, observerOptions);
 
-    // Observe elements for animation
+    // Observar elementos para animação
     const animatedElements = document.querySelectorAll('.stat-item, .faq-item');
     animatedElements.forEach(el => {
         el.style.opacity = '0';
@@ -394,7 +394,7 @@ function setupScrollAnimations() {
     });
 }
 
-// Cart functions
+// Funções do carrinho
 function addToCart(kitId) {
     const kit = kitsData.find(k => k.id === kitId);
     if (!kit) return;
@@ -440,11 +440,11 @@ function updateCartUI() {
     const cartFooter = document.getElementById('cartFooter');
     const cartTotal = document.getElementById('cartTotal');
     
-    // Update cart count
+    // Atualizar contador do carrinho
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     cartCount.textContent = totalItems;
     
-    // Update cart items
+    // Atualizar itens do carrinho
     if (cart.length === 0) {
         cartItems.innerHTML = `
             <div class="empty-cart">
@@ -474,7 +474,7 @@ function updateCartUI() {
             </div>
         `).join('');
         
-        // Update total
+        // Atualizar total
         const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         cartTotal.textContent = total.toFixed(2);
         cartFooter.style.display = 'block';
@@ -494,24 +494,24 @@ function closeCart() {
 function checkout() {
     if (cart.length === 0) return;
     
-    // Simulate order processing
+    // Simular processamento do pedido
     const orderData = {
         items: cart,
         total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
         timestamp: new Date().toISOString()
     };
     
-    // Save to localStorage (in a real app, this would go to a server)
+    // Salvar no localStorage (em uma aplicação real, iria para um servidor)
     localStorage.setItem('lastOrder', JSON.stringify(orderData));
     
-    // Clear cart
+    // Limpar carrinho
     cart = [];
     updateCartUI();
     
-    // Close cart modal
+    // Fechar modal do carrinho
     closeCart();
     
-    // Show success modal
+    // Mostrar modal de sucesso
     const successModal = document.getElementById('successModal');
     successModal.style.display = 'block';
 }
@@ -522,7 +522,7 @@ function closeSuccessModal() {
 }
 
 function showCartNotification() {
-    // Create notification element
+    // Criar elemento de notificação
     const notification = document.createElement('div');
     notification.className = 'cart-notification';
     notification.innerHTML = `
@@ -530,7 +530,7 @@ function showCartNotification() {
         <span>Item adicionado ao carrinho!</span>
     `;
     
-    // Add styles
+    // Adicionar estilos
     notification.style.cssText = `
         position: fixed;
         top: 20px;
@@ -549,7 +549,7 @@ function showCartNotification() {
     
     document.body.appendChild(notification);
     
-    // Remove after 3 seconds
+    // Remover após 3 segundos
     setTimeout(() => {
         notification.style.animation = 'slideOutRight 0.3s ease';
         setTimeout(() => {
@@ -558,7 +558,7 @@ function showCartNotification() {
     }, 3000);
 }
 
-// Close modals when clicking outside
+// Fechar modais ao clicar fora
 window.onclick = function(event) {
     const videoModal = document.getElementById('videoModal');
     const cartModal = document.getElementById('cartModal');

@@ -1,8 +1,8 @@
-// Global variables
+// Variáveis do carrinho de compras
 let cart = [];
 let cartTotal = 0;
 
-// Tech Portal variables
+// Variáveis do portal técnico
 let currentTechUser = null;
 let currentQuiz = null;
 let currentQuestionIndex = 0;
@@ -13,11 +13,11 @@ let techProgress = {
     certificatesEarned: 0
 };
 
-// Local users storage (simulating database)
+// Armazenamento local de usuários (simulando banco de dados)
 let localUsers = JSON.parse(localStorage.getItem('sanityTechUsers')) || [];
 let currentUserProgress = JSON.parse(localStorage.getItem('sanityUserProgress')) || {};
 
-// Sample data for kits and videos - Foco em equipamentos de ordenha
+// Dados de kits e vídeos - Equipamentos de ordenha
 const kitsData = [
     {
         id: 1,
@@ -170,7 +170,7 @@ const videosData = [
     }
 ];
 
-// Tech Portal Data
+// Dados do portal técnico
 const techCourses = [
     {
         id: 1,
@@ -311,7 +311,7 @@ const techQuizzes = [
 let filteredKits = [...kitsData];
 let filteredVideos = [...videosData];
 
-// Initialize the page
+// Inicializar a página
 document.addEventListener('DOMContentLoaded', function() {
     renderKits();
     renderVideos();
@@ -319,7 +319,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function setupEventListeners() {
-    // Navigation smooth scrolling
+    // Navegação suave entre seções
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
@@ -333,7 +333,7 @@ function setupEventListeners() {
         });
     });
 
-    // Search functionality
+    // Funcionalidade de busca
     document.getElementById('searchInput').addEventListener('input', function() {
         searchContent();
     });
@@ -400,7 +400,7 @@ function filterContent() {
     const difficultyFilter = document.getElementById('difficultyFilter').value;
     const priceFilter = document.getElementById('priceFilter').value;
 
-    // Filter kits
+    // Filtrar kits
     filteredKits = kitsData.filter(kit => {
         const categoryMatch = !categoryFilter || kit.category === categoryFilter;
         const difficultyMatch = !difficultyFilter || kit.difficulty === difficultyFilter;
@@ -408,7 +408,7 @@ function filterContent() {
         return categoryMatch && difficultyMatch && priceMatch;
     });
 
-    // Filter videos
+    // Filtrar vídeos
     filteredVideos = videosData.filter(video => {
         const categoryMatch = !categoryFilter || video.category === categoryFilter;
         const difficultyMatch = !difficultyFilter || video.difficulty === difficultyFilter;
@@ -476,7 +476,7 @@ function addToCart(kitId) {
     alert(`Kit "${kit.title}" adicionado ao carrinho!`);
 }
 
-// Close modal when clicking outside
+// Fechar modal ao clicar fora
 window.onclick = function(event) {
     const modal = document.getElementById('videoModal');
     if (event.target === modal) {
@@ -484,7 +484,7 @@ window.onclick = function(event) {
     }
 }
 
-// FAQ functionality
+// Funcionalidade do FAQ
 function setupFAQ() {
     const faqItems = document.querySelectorAll('.faq-item');
     
@@ -494,14 +494,14 @@ function setupFAQ() {
         question.addEventListener('click', () => {
             const isActive = item.classList.contains('active');
             
-            // Close all other FAQ items
+            // Fechar outros itens do FAQ
             faqItems.forEach(otherItem => {
                 if (otherItem !== item) {
                     otherItem.classList.remove('active');
                 }
             });
             
-            // Toggle current item
+            // Alternar item atual
             if (isActive) {
                 item.classList.remove('active');
             } else {
@@ -511,7 +511,7 @@ function setupFAQ() {
     });
 }
 
-// Smooth scrolling for navigation
+// Rolagem suave para navegação
 function setupSmoothScrolling() {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
@@ -531,7 +531,7 @@ function setupSmoothScrolling() {
     });
 }
 
-// Intersection Observer for animations
+// Animações ao rolar a página
 function setupScrollAnimations() {
     const observerOptions = {
         threshold: 0.1,
@@ -547,7 +547,7 @@ function setupScrollAnimations() {
         });
     }, observerOptions);
 
-    // Observe elements for animation
+    // Observar elementos para animação
     const animatedElements = document.querySelectorAll('.stat-item, .faq-item');
     animatedElements.forEach(el => {
         el.style.opacity = '0';
@@ -557,7 +557,7 @@ function setupScrollAnimations() {
     });
 }
 
-// Cart functions
+// Funções do carrinho
 function addToCart(kitId) {
     const kit = kitsData.find(k => k.id === kitId);
     if (!kit) return;
@@ -603,11 +603,11 @@ function updateCartUI() {
     const cartFooter = document.getElementById('cartFooter');
     const cartTotal = document.getElementById('cartTotal');
     
-    // Update cart count
+    // Atualizar contador do carrinho
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     cartCount.textContent = totalItems;
     
-    // Update cart items
+    // Atualizar itens do carrinho
     if (cart.length === 0) {
         cartItems.innerHTML = `
             <div class="empty-cart">
@@ -637,7 +637,7 @@ function updateCartUI() {
             </div>
         `).join('');
         
-        // Update total
+        // Atualizar total
         const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         cartTotal.textContent = total.toFixed(2);
         cartFooter.style.display = 'block';
@@ -721,7 +721,7 @@ function showCartNotification() {
     }, 3000);
 }
 
-// Close modals when clicking outside
+// Fechar modais ao clicar fora
 window.onclick = function(event) {
     const videoModal = document.getElementById('videoModal');
     const cartModal = document.getElementById('cartModal');
@@ -1113,9 +1113,9 @@ function showNotification(message, type) {
     }, 3000);
 }
 
-// Initialize local sample data
+// Inicializar dados locais de exemplo
 function initializeLocalData() {
-    // Create a test user if none exists
+    // Criar usuário de teste se não existir nenhum
     if (localUsers.length === 0) {
         const testUser = {
             id: 'test_user_001',
@@ -1128,7 +1128,7 @@ function initializeLocalData() {
         localUsers.push(testUser);
         localStorage.setItem('sanityTechUsers', JSON.stringify(localUsers));
         
-        // Initialize test user progress
+        // Inicializar progresso do usuário de teste
         currentUserProgress[testUser.id] = {
             videosWatched: 0,
             quizzesPassed: 0,
@@ -1136,14 +1136,14 @@ function initializeLocalData() {
         };
         localStorage.setItem('sanityUserProgress', JSON.stringify(currentUserProgress));
         
-        console.log('Test user created: tecnico@sanity.com / 123456');
+        console.log('Usuário de teste criado: tecnico@sanity.com / 123456');
     }
     
-    console.log('Local system initialized successfully');
-    console.log('Users stored in localStorage:', localUsers.length);
+    console.log('Sistema local inicializado com sucesso');
+    console.log('Usuários armazenados no localStorage:', localUsers.length);
 }
 
-// Initialize all functionality
+// Inicializar toda a funcionalidade
 document.addEventListener('DOMContentLoaded', function() {
     renderKits();
     renderVideos();
@@ -1153,6 +1153,6 @@ document.addEventListener('DOMContentLoaded', function() {
     setupScrollAnimations();
     updateCartUI();
     
-    // Initialize local system
+    // Inicializar sistema local
     initializeLocalData();
 });
