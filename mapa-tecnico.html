@@ -385,9 +385,6 @@
         }
         
         .back-to-portal {
-            position: fixed;
-            top: 2rem;
-            left: 2rem;
             background: rgba(255, 255, 255, 0.9);
             color: var(--primary-orange);
             border: 2px solid var(--primary-orange);
@@ -399,7 +396,6 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            z-index: 1000;
         }
         
         .back-to-portal:hover {
@@ -499,9 +495,6 @@
             }
             
             .back-to-portal {
-                position: relative;
-                top: auto;
-                left: auto;
                 margin-bottom: 1rem;
                 display: inline-flex;
                 width: 100%;
@@ -754,13 +747,25 @@
         }
     </style>
 </head>
-<body>
-    <a href="portal-tecnico.html" class="back-to-portal">
-        <i class="fas fa-arrow-left"></i>
-        Voltar ao Portal
-    </a>
+<body class="has-navigation">
+    <!-- Navigation Bar -->
+    <nav class="navigation-bar">
+        <div class="navigation-content">
+            <a href="index.html" class="nav-brand">
+                <i class="fas fa-cow"></i>
+                DIGISANITY MILK
+            </a>
+            <div class="nav-breadcrumb">
+                <a href="index.html">Início</a>
+                <i class="fas fa-chevron-right"></i>
+                <a href="portal-tecnico.html">Portal do Técnico</a>
+                <i class="fas fa-chevron-right"></i>
+                <span>Mapa de Clientes</span>
+            </div>
+        </div>
+    </nav>
     
-    <div class="map-container">
+    <div class="map-container" style="padding-top: 80px;" id="mapContainer">
         <div class="container">
             <!-- Map Header -->
             <div class="map-header">
@@ -912,5 +917,19 @@
     </div>
     
     <script src="mapa-tecnico.js"></script>
+    <script>
+        // Ajustar padding dinamicamente para dispositivos móveis
+        function adjustPadding() {
+            const container = document.getElementById('mapContainer');
+            if (window.innerWidth <= 480) {
+                container.style.paddingTop = '100px';
+            } else {
+                container.style.paddingTop = '80px';
+            }
+        }
+        
+        window.addEventListener('load', adjustPadding);
+        window.addEventListener('resize', adjustPadding);
+    </script>
 </body>
 </html>

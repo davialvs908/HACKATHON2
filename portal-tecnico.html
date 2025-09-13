@@ -511,9 +511,6 @@
         }
         
         .back-to-site {
-            position: fixed;
-            top: 2rem;
-            left: 2rem;
             background: rgba(255, 255, 255, 0.9);
             color: var(--primary-orange);
             border: 2px solid var(--primary-orange);
@@ -525,7 +522,6 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            z-index: 1000;
         }
         
         .back-to-site:hover {
@@ -625,9 +621,6 @@
             }
             
             .back-to-site {
-                position: relative;
-                top: auto;
-                left: auto;
                 margin-bottom: 1rem;
                 display: inline-flex;
                 width: 100%;
@@ -728,13 +721,23 @@
         }
     </style>
 </head>
-<body>
-    <a href="index.html" class="back-to-site">
-        <i class="fas fa-arrow-left"></i>
-        Voltar ao Site
-    </a>
+<body class="has-navigation">
+    <!-- Navigation Bar -->
+    <nav class="navigation-bar">
+        <div class="navigation-content">
+            <a href="index.html" class="nav-brand">
+                <i class="fas fa-cow"></i>
+                DIGISANITY MILK
+            </a>
+            <div class="nav-breadcrumb">
+                <a href="index.html">Início</a>
+                <i class="fas fa-chevron-right"></i>
+                <span>Portal do Técnico</span>
+            </div>
+        </div>
+    </nav>
     
-    <div class="portal-container">
+    <div class="portal-container" style="padding-top: 80px;" id="portalContainer">
         <div class="container">
             <!-- Portal Header -->
             <div class="portal-header">
@@ -942,5 +945,19 @@
         };
     </script>
     <script src="portal-tecnico.js"></script>
+    <script>
+        // Ajustar padding dinamicamente para dispositivos móveis
+        function adjustPadding() {
+            const container = document.getElementById('portalContainer');
+            if (window.innerWidth <= 480) {
+                container.style.paddingTop = '100px';
+            } else {
+                container.style.paddingTop = '80px';
+            }
+        }
+        
+        window.addEventListener('load', adjustPadding);
+        window.addEventListener('resize', adjustPadding);
+    </script>
 </body>
 </html>
